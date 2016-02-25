@@ -1,0 +1,265 @@
+%\VignetteIndexEntry{Analysing RNA-Seq count data with the "MBttest" package}
+%\VignettePackage{MBttest}
+
+% To compile this document
+% library('cacheSweave');rm(list=ls());Sweave('BMttest.Rnw',driver=cacheSweaveDriver());system("pdflatex MBttest")
+
+\documentclass[a4paper]{article}
+
+\title{Multiple Beta $t$-Tests of Differential Transcription of mRNAs Between Two Conditions with Small Samples}
+\author{Yuan-De Tan\\
+\texttt{tanyuande@gmail.com}}
+
+<<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@ 
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+A major task in the analysis of count data of \texttt{RNA} reads from \texttt{RNA-Seq} is the detection of differentially expressed genes or isoforms.
+The count data are presented as a matrix consisting of \texttt{RNA} isoform annotation and  the number of reads. Analogous analyses also arise for other assay types, such as comparative \texttt{ChIP-Seq}. The package \Rpackage{MBttest} provides a powerful method to test for differential expression by use of the beta distribution and gene- or isoform-specific variable $\rho$ to control fudge effect due to small sample size. \footnote{Other Bioconductor packages with similar aims are \Rpackage{edgeR}, \Rpackage{baySeq}, \Rpackage{DESeq} and \Rpackage{DESeq2}.}. This vignette explains the use of the package. For more detail of the statistical method, please see our paper~\cite{tan2015}.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+This vignette is intended to give a rapid introduction to the commands used in implementing new beta $t$-test methods of evaluating differential expression in high-throughput sequencing data by means of the \Rpackage{MBttest}\textbf{R} package. For fuller details on the methods being used, consult Tan et al (2015) \cite{tan2015} .
+
+We assume that we have count data from a set of sequencing or other high-throughput experiments, arranged in an array such that except gene annotation information and \texttt{id}, each column describes a library and each row describes RNA tag or isoform for which data have been acquired. For example, the rows may correspond to the different sequences observed in a sequencing experiment. The data then consists of the number of each sequence observed in each sample. We wish to determine which, if any, rows of the data correspond to some patterns of differential expression across the samples. 
+
+\Rpackage{MBttest}, also called \emph{mBetat} test, uses new beta $t$-test method to identify differential expression for each row. This approach introduces a gene- or isoform-specific variable, called $\rho$, into $t$-statistics to control fudge effect resulted from small samples. It has higher work efficiency than existing methods for identifying differential expressions of genes or isoforms either by inflating t-values with \[\rho > \omega \] \textit{threshold} or by shrinking those with \[\rho < \omega \]~\cite{tan2015} when number of replicate libraries in each condition is small, for example, equal to or less than 8.
+
+Different from the exiting methods such as \Rpackage{baySeq}~\cite{hardcastle2010}, \Rpackage{edgeR} Exact test~\cite{Robinson2008} and\cite{Robinson2010}, \Rpackage{edgeR} \emph{GLM}~\cite{McCarthy 2012} and~\cite{Robinson2010}, \Rpackage{DESeq}~\cite{Anders2010} and\Rpackage{DESeq2}~\cite{Love2014}, etc, \Rpackage{MBttest} requires performance of simulation to determine \textit{threshold} $\omega$ before running program \Rfunction{mbetattest}. \Rpackage{MBttest} provides negative binomial simulation program to generate null count data without inputting arguments.  User should repeat five or more simulations, perform program \Rfunction{smbettest} to produce null results and calculate $\omega$ using the method given in our paper~\cite{tan2015}.  
+
+
+
+\section{Data Preparation and Input}
+
+We begin by loading the \Rpackage{MBttest} package.
+
+<<echo = false, results = hide>>=
+set.seed(102)
+options(width = 90)
+@
+
+<<>>=
+library(MBttest)
+@
+
+\Rpackage{MBttest} requires data file contain two parts: Annotation information and count data. Information consists of  \texttt{tagid}, \texttt{geneid}, gene name, chromosome \texttt{id}, DNA strand, etc. Information is in left side. It has at least one column for \texttt{geneid} or \texttt{tagid (isoformid)}. The data contain two conditions each having several replicate libraries and must be in right side. Here is an example :
+
+<<>>=
+data(jkttcell)
+jkttcell[1:10,]
+@
+
+User also may use \Rfunction{head} to display the data with top 6 lines:
+
+<<>>=
+head(jkttcell)
+@
+
+If the data are \textit{csv} file, user can use \Rfunction{read.csv} function to input data into \textbf{R Console} or If the data are \textit{txt} file, user can use \Rfunction{read.delim} function to load data into \textbf{R Console}. After loading data, user should check the data inputted. \texttt{jkttcell} shows an example. In this example, 7 columns in the left side are information of \textsl{poly(A)} sites. The count data are listed in the right side.
+
+\section{Simulation for Calculating $omega$ Value }
+Before performing \Rfunction{mbetattest} on the real data, user needs simulation to determine $omega$ value. There are three steps for doing so:
+
+\subsection{Step1: Simulate null count data}
+
+Use the following function to generate null simulation data
+\begin{center}
+                 \Rfunction{simulat(yy, nci, r1, r2, p, q, A)}
+\end{center}
+where\\ 
+\textit{yy} is real data.\\
+$r1$ and $r2$ are replicate numbers in conditions 1 and 2.\\
+$p$ is proportion of genes differentially expressed in m genes, default value is 0.\\
+$q$ is proportion of genes artificial noise. Its default value is 0.\\
+$A$ is effect value. Its default value is 0.\
+\textit{nci}: column number of information of data.\\
+Here is an example:
+
+<<>>=
+sjknull1<-simulat(yy=jkttcell[1:500,],nci=7,r1=3,r2=3,q=0.2)
+@
+Our data is \textit{jkttcell}. It has 7 columns for information of \textsl{poly(A)} sites. Two conditions are resting and stimulation. Each has 3 replicate libraries, r1=3 and r2=3. Since this is null simulation, we set p=0 and q=0.2 for artificial noise. With the same read data and parameters, you can generate a set of 4-6 null datasets: \textit{sjknull2}, $\cdots$, \textit{sjknull6} for calculating $omega$ value.
+\subsection{Step2: Perform multiple beta t-tests}
+Use function \Rfunction{smbetattest}  to perform multiple beta t-test with $\rho$ =1 on the  simulated null data: 
+\begin{center}
+\Rfunction{smbetattest}($X$, $na$, $nb$,alpha)
+\end{center}
+where\\
+$X$=simulated data.\\
+$na$ and $nb$ are numbers of replicate libraries in conditions 1 and 2.\\
+\textit{alpha} is probabilistic threshold. User can set \textit{alpha}=0.05 or 0.01.\\
+The example is
+<<>>=
+mysim1<-smbetattest(X=sjknull1,na=3,nb=3,alpha=0.05)
+@
+
+Save them to \textit{csv} files
+
+\Rfunction{write.csv}\textit{(mysim1, file='simulatedNullData1Result.csv")}
+
+After performing \Rfunction{smbetattest} on each simulated null dataset, user would have results recorded in file like \textit{simulatedNullData1Result.csv} and open it with excel.
+
+\begin{figure}[ht] %  figure placement: here, top, bottom, or page
+\graphicspath{ {vignettes/} }
+   \centering
+   \includegraphics[width=6in]{Figure1.png} 
+   \caption{This is an example showing the results obtained by \Rfunction{smbetattest} from simulated null data. Column A is row number, \texttt{geneid} is set in simulation, and \texttt{geneid}.1 is original \texttt{geneid}.}
+   \label{fig:Figure1}
+\end{figure}
+
+In symbol column, \texttt{mbeta} $t$-test gives test result: \textit{symb}= "-" means that the gene or tag is not chosen while \textit{symb}= "+"  indicates that the gene or isoform is found to be differentially expressed.
+
+\begin{figure}[ht] %  figure placement: here, top, bottom, or page
+\graphicspath{ {vignettes/} }
+   \centering
+   \includegraphics[width=6in]{Figure2.png} 
+   \caption{The row number in column A in Figure 1 was deleted. To show explicitly, we here hided \texttt{geneid} (for simulation), \texttt{tagid} column and selected rows are genes that were identified to be differentially expressed.}
+   \label{fig:Figure 2}
+\end{figure}
+
+In this example, 12 genes would be found to be falsely positive.
+
+\subsection{Step3:  Calculate $omega$ value}
+
+Here is a demo for calculating $omega$(since we can't use greek letter $omega$ in R function, we use $W$ to represent $omega$). In Figure 3, red highlighted column is \textit{rho} column. We copied the $\rho$ values of these 12 genes into another empty column and sorted them from the smallest to the largest. Then we gave sequence numbers from 1 to 12 corresponding to $\rho$-values  and calculate $q$-value for each ordered $\rho$ value:
+
+\begin{figure}[ht] %  figure placement: here, top, bottom, or page
+\graphicspath{ {vignettes/} }
+   \centering
+   \includegraphics[width=6in]{Figure3.png} 
+   \caption{Demo for calculating $W$}
+   \label{fig:Figure 3}
+\end{figure}
+
+We chose the 10th $\rho$ value (1.09166) as the first $W$ value because the 11th rho value has $q$-value > 0.85.  Repeat this process in 4-6 simulated null datasets and we took the averaged $W$ value as $W$ value in the real data.  
+
+\section{Normalize the count data}
+As a second processing step, we need to estimate the effective library size. This step is also called \emph{normalization}, even though it may not make the count data be of normal distribution.  If the counts of expressed genes in one condition are, on average, twice as high as in another (because the library was sequenced twice as deeply), the size factor for the first condition should be twice higher than the second one, then differential analysis would give error results. For this reason, we must make all libraries have the same size before performing any statistical method. For doing so, user can the function
+\Rfunction{estimateSizeFactors} of \textbf{R} package \Rpackage{DESeq}~\cite{Anders2010} or \Rpackage{DESeq2}~\cite{Love2014} to estimate the size factors from the count data or  use the following simple method to normalize the the count data: In excel sheet, use function sum to calculate sizes of all libraries, and then use excel function average to calculate averaged library size. The last step is to use the following equation to convert the original count data to new count data with the same library size: 
+\[Y_{ik} =\frac{y_{ij}\bar{N}}{N_j}\]
+where
+$i = 2$, $\cdots$, $n$(number of genes or isofoms) in rows in a sheet, $j = nci+1$, $\cdots$, $nci+c$ where $c=na+nb$ and \textit{nci} is column number of annotation information; $k = nci + c +2+j$; $N_j$ is size of library $j$ and $\bar{N}$ is mean of sizes over all libraries; $y_{ij}$ is original count of \texttt{RNA} reads in row $i$ and column $j$. 
+
+\section{Perform Multiple Beta $t$-Tests on The Real Data}
+Suppose the data have been normalized so that all libraries have the same size.  After obtaining $W$ value, user can use the function and the real data to perform \texttt{mbeta} $t$-test: \Rfunction{mbetattest}($X$,$na$,$nb$,$W$, alpha, file) where
+$X$ is real data. In our current example, $X$=\textit{jkttcell}.
+$na$ and $nb$ are respectively numbers of replicate libraries in conditions 1 and 2. For \textit{jktcell} data, $na=nb=3$.
+$W$ is omega value. According to our calculation above step, $W=1$.
+\textit{alpha} is the probabilistic threshold. You can set \textit{alpha}=0.05 or 0.01 or the other values;
+file is \textit{csv} file for saving the results. The example is
+
+
+<<>>=
+res<-mbetattest(X=jkttcell[1:1000,],na=3,nb=3,W=1,alpha=0.05,file="jurkat_NS_48h_tag_mbetattest.csv")
+@ 
+
+\Rfunction{mbetattest} has two output results: one is saved in \textit{csv} file and the other is dat for \emph{maplot} and for \emph{heatmap}. The package MBttest has this result obtained the whole data. We here load it for making MAplot:
+<<>>=
+data(dat)
+head(dat)
+@
+<<fig=FALSE,label=MAplot>>=
+maplot(dat=dat,r1=3,r2=3,TT=350,matitle="MA plot")
+@
+\begin{figure}[ht]
+\begin{center}
+
+<<label=figMAplot, fig=TRUE,echo=FALSE>>=
+<<MAplot>>
+@ 
+\caption{'MA'-plot of t-value against log mean over all replicate libraries across two conditions. The isoforms who were given differential transcripts in simulation had absolute larger t-values that were highlighted in red than the threshold given in multiple tests. Those who were given no differential expression had very small absolute t-values close to zero labeled in black across long means. Here threshold for truncating $t$-values is set to be 350, since none of absolute $t$-values are over 350, the \emph{MAplot} is an outline \emph{MAplot} in which red and black dots are not explicitly seen.}
+\label{figure4}
+\end{center}
+\end{figure}
+
+<<fig=FALSE, label=MAplot50>>=
+maplot(dat=dat,r1=3,r2=3,TT=50,matitle="MA plot")
+@
+
+\begin{figure}[ht]
+\begin{center}
+
+<<label=figMAplot50, fig=TRUE,echo=FALSE>>=
+<<MAplot50>>
+@ 
+\caption{'MA'-plot of t-value against log mean over all replicate libraries across two conditions. To explicit display the $t$-values across log mean, absolute $t$-values >= 50 were truncated. One can explicitly see that truly differential transcripts in simulation had absolute larger $t$-values that were highlighted in red than the threshold given in multiple tests and those who had no differential expressions had very smaller absolute $t$-values that were labeled in black than the threshold.}
+\label{figure5}
+\end{center}
+\end{figure}
+
+\Rfunction{myheatmap} has multiple options: both-side, row and column cluster trees with distance methods: "euclidean", "pearson", "spearman", and "kendall" correlation coefficients and color label with "redgreen", "greenred", "redblue", "bluered" or "heat.colors" and angles for genes or isoforms in row and cases (conditions) in column. User can use default without any choice like (Figure~\ref{figure6}) which has tree="both" for both-side tree, or choose tree="column" like (Figure~\ref{figure8}) if columns are species or cancer cases or not choose tree with tree="none" (see (Figure~\ref{figure7})). User may change \emph{heatmap} color with colors, for example, in (Figure~\ref{figure8}), we chose colors="redblue". If user find that default column name or row name does no have good angles, then user can adjust them with \texttt{rwangle} (row angle) or \texttt{clangle}(column angle). \texttt{rwangle} and \texttt{clangle} values are from 0 to 90.
+
+%\clearpage
+  
+<<fig=FALSE, label=heatmapwithtree>>=
+myheatmap(dat=dat,r1=3,r2=3,maptitle="Jurkat T-cell heatmap2")
+@
+
+\begin{figure}[ht]
+\begin{center}
+
+<<label=figheatmapwithtree, fig=TRUE,echo=FALSE>>=
+<<heatmapwithtree>>
+@ 
+\caption{The \emph{heatmap} has both-side trees and displays explicitly differential expression between stimulating and rest. Most of genes were up-expressed by stimulation but a small part of genes were down-expressed. The tree in column divides columns into two groups: \texttt{NS} and 48h. The tree in row is tree of differentially expressed genes and also divide genes in row into two big groups.}
+\label{figure6}
+\end{center}
+\end{figure}
+
+<<fig=FALSE, label=heatmapwithouttree>>=
+myheatmap(dat=dat,r1=3,r2=3,tree="none",maptitle="Jurkat T-cell heatmap3")
+@ 
+
+\begin{figure}[ht]
+\begin{center}
+<<label=figheatmapwithouttree, fig=TRUE,echo=FALSE>>=
+<<heatmapwithouttree>>
+@ 
+\caption{The \emph{heatmap} did not give trees on both sides, but the \emph{heatmap} is the same with (Figure~\ref{figure6})}
+\label{figure7}
+\end{center}
+\end{figure}
+
+<<fig = FALSE, label=heatmapwithcoltree>>=
+myheatmap(dat=dat,r1=3,r2=3,colrs="redblue", tree="column",
+method="pearson", maptitle="Jurkat T-cell heatmap")
+@ 
+\begin{figure}[ht]
+\begin{center}
+<<label=figheatmapwithcoltree, fig=TRUE,echo=FALSE>>=
+<<heatmapwithcoltree>>
+@ 
+\caption{This \emph{heatmap} was labeled with red and blue and gave column trees}
+\label{figure8}
+\end{center}
+\end{figure}
+
+\clearpage
+
+\section{Session Info}
+
+<<>>=
+sessionInfo()
+@ 
+
+
+\begin{thebibliography}{99}
+\bibitem{Anders2010} Anders S, Huber W (2010) \textsl{Differential expression analysis for sequence count data.} Genome Biol 11: R106.
+\bibitem{hardcastle2010} Thomas J. Hardcastle and Krystyna A. Kelly (2010) \textsl{baySeq: Empirical Bayesian Methods For Identifying Differential Expression In Sequence Count Data.} BMC Bioinformatics.
+\bibitem{hardcastle2015} Thomas J. Hardcastle (2015) \textsl{Generalised empirical Bayesian methods for discovery of differential data in high-throughput biology.} bioR$\chi$v preprint.
+\bibitem{Love2014} Love MI, Huber W, Anders S (2014) \textsl{Moderated estimation of fold change and dispersion for RNA-Seq data with DESeq2.} bioRxiv doi:10.1101/002832.
+\bibitem{McCarthy 2012} McCarthy DJ, Chen Y, Smyth GK (2012) \textsl{Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation.} Nucleic Acids Res,2012, 40: 4288-4297.
+\bibitem{Robinson2008} Robinson MD, Smyth GK (2008) \textsl{Small-sample estimation of negative binomial dispersion, with applications to SAGE data.} Biostatistics 2008, 9: 321-332.
+\bibitem{Robinson2010} Robinson MD, McCarthy DJ, Smyth GK (2010)  \textsl{edgeR: a Bioconductor package for differential expression analysis of digital gene expression data.} Bioinformatics 26: 139-140.
+\bibitem{tan2015}Yuan-De Tan. Anita M. Chandler, Arindam Chaudhury, and Joel R. Neilson(2015)  \textsl{A Powerful Statistical Approach for Large-scale Differential Transcription Analysis.} Plos One. 2015 DOI: 10.1371.
+\end{thebibliography}
+
+\end{document}
