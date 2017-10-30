@@ -1,7 +1,7 @@
 Package: MBttest
 Type: Package
 Title: Multiple Beta t-Tests
-Version: 1.6.0
+Version: 1.7.0
 Date: 2015-01-04
 Author: Yuan-De Tan
 Maintainer: Yuan-De Tan <tanyuande@gmail.com>
