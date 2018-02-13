@@ -1,11 +1,10 @@
 \name{betaparametab}
 \alias{betaparametab}
 \title{
- Estimation of Beta Parameters a And b
+ Estimation of Beta Parameters alpha and beta
 }
 \description{
-parameters alpha(a) and beta (b) in betat distribution are estimated by using modified Baggerly et al(2003)'s 
-iterative optimal method. 
+parameters alpha(a) and beta (b) in beta distribution are estimated by using an iteration algorithm. 
 }
 \usage{
 betaparametab(xn, w, P, V)
@@ -29,8 +28,7 @@ variance for proportions of counts of a gene or an isoform over m replicate libr
  return parameters a and b.
 }
 \references{
-Baggerly KA, Deng L, Morris JS, Aldaz CM (2003) Differential expression in SAGE: 
-accounting for normal between-library variation. \emph{Bioinformatics} \bold{19}: 1477-1483.
+Baggerly KA, Deng L, Morris JS, Aldaz CM (2003) Differential expression in SAGE: accounting for normal between-library variation. \emph{Bioinformatics} \bold{19}: 1477-1483.
 }
 \author{
 Yuan-De Tan

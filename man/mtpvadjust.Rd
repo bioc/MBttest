@@ -20,14 +20,14 @@ numeric constant, the value can be taken from any number > 0 or equal to 0. C is
 }
 }
 \details{
-This is a multiple-test procedure family including Benjamini-Hochberg procedure, Bonferroni procedure and single-test procedure. By choosing C-value, it can generat a multiple-test procedure for controling the false discovery rate,the expected proportion of false discoveries amongst the rejected hypotheses. Benjamini-Hochberg procedure is given with C=1.22, Bonferroni procedure is given with C = N and single-test procedure can be given with C=0. 
+This is a multiple-test procedure family including Benjamini-Hochberg procedure, Bonferroni procedure and single-test procedure. By choosing C-value, it can generate a multiple-test procedure for controling the false discovery rate, the expected proportion of false discoveries amongst the rejected hypotheses. Benjamini-Hochberg procedure is given with C=1.22, Bonferroni procedure is given with C = N and single-test procedure can be given with C=0. 
 }
 \value{
 return a list of adjusted p-values.
 }
 \references{
 Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. \emph{Journal of the Royal Statistical Society Series B} \bold{57}, 289-300. 
-\\
+\cr
 Yuan-De Tan and Hongyan Xu A general method for accurate estimation of false discovery rates in identification of differentially expressed genes. \emph{Bioinformatics} (2014) \bold{30} (14): 2018-2025. doi: 10.1093/bioinformatics/btu124.
 }
 

@@ -30,7 +30,7 @@ statistical probabilistic threshold, default value is 0.05.
 
 }
 \details{
-Before performing mbeta t-test on real data, user needs omega value for the threshold of rho. To determine omega value, user is requred to simulate null data having the same gene or isoform number and the same numbers of replicate libraries in two conditions and then performs mbeta t-test on the simulated null data by setting rho =1 and omega =1. To calculate accurately omega value, user needs such performance on 4-6 simulated null
+Before performing mbeta t-test on real data, user needs omega (w) value for the threshold of rho(\eqn{\rho}). To determine omega value, user is requred to simulate null data having the same gene or isoform number and the same numbers of replicate libraries in two conditions and then performs mbeta t-test on the simulated null data by setting rho =1 and omega =1. To calculate accurately omega value, user needs such performance on 4-6 simulated null
 datasets. Manual provides method for omega calculation. 
 }
 \value{

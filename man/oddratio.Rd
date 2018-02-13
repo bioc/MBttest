@@ -2,10 +2,10 @@
 \alias{oddratio}
 
 \title{
-Calculation of Zeta
+Calculation of Zeta(\eqn{\zeta})
 }
 \description{
-Zeta is used to measure homogeneity intensity of two subdatasets. If zeta >1, these two subdatasets have good homogeneity; otherwise, zeta <1 indicates that two subdatasets have poor homogeneity (big noise).
+Zeta (\eqn{\zeta}) is used to measure homogeneity intensity of two subdatasets. If \eqn{\zeta >1}, these two subdatasets have good homogeneity; otherwise, \eqn{\zeta <1} indicates that two subdatasets have poor homogeneity (big noise).
 }
 \usage{
 oddratio(XX, na, nb)
@@ -24,8 +24,8 @@ number of replicate libraries in condition B.
 }
 \details{
 Zeta is defined as 
-\deqn{zeta=log(1+(mean(XA,XB)*var(XA,XB))/(mean(XA)*var(XA)+mean(XB)*var(XB)))}
-zeta is different from psi. If two subdatasets have big a gap and good homogeneity,then seta value has much larger than 1.
+\deqn{\zeta=log(1+\frac{\bar{X}\sigma^2+1}{\bar{X}_A\sigma^2_A+\bar{X}_B\sigma^2_B+1})}
+where \eqn{\zeta} is different from \eqn{\psi}. If two subdatasets have big a gap and good homogeneity, then \eqn{\zeta} value has much larger than 1.
  
 }
 \value{

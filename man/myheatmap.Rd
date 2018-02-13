@@ -12,7 +12,7 @@ myheatmap(dat, r1, r2, W, colrs, tree, method, rwangle, clangle, maptitle)
 
 \arguments{
   \item{dat}{
-data outputted by mbeta_ttest, includes information columns, data columns, t-value, rho and symbol columns;
+data outputted by mbetattest, includes information columns, data columns, t-value, rho and symbol columns;
 }
   \item{r1}{
 numeric argument: number of replicate libraries in condition 1.
@@ -21,11 +21,10 @@ numeric argument: number of replicate libraries in condition 1.
 numeric argument: number of replicate libraries in condition 2
 }
   \item{W}{
-numeric argument: threshold for choosing genes or isoforms for heatmap. W value can be set to be 0 to any large number. If you set W =0, then the function will select all differentially expressed genes with symb="+". To choose a appropriate W, user needs to refere to rho values in the result file. Default W=1.
+numeric argument: threshold for choosing genes or isoforms for heatmap. W value can be set to be 0 to any large number. If user sets W = 0, then the function will select all differentially expressed genes with symb="+". To choose a appropriate W, user needs to refere to rho values in the result file. Default W=1.
 }
   \item{colrs}{
-heatmap colors. User has 5 options: "redgreen", "greenred", "redblue", "bluered" and
-"heat.colors". Default colrs="redgreen".
+heatmap colors. User has 5 options: "redgreen", "greenred", "redblue", "bluered" and "heat.colors". Default colrs="redgreen".
 }
   \item{tree}{
 object of heatmap. User has four options: "both" for row and column trees,"row" for only row tree,"column" for only column tree, and "none" for no tree specified. Default tree="both".
@@ -44,7 +43,7 @@ string for heatmap title.
 }
 }
 \details{
-This function uses W (omega) and symb to choose genes or isoforms in the data ordered by t-values and then to normalize the selected data by using z-scale. This function has multiple options to select map color, distance, cluster and x- and y-lab angles. The heatmap was designed for publication and presentation, that is, zoom of the figure can be reduced without impacting solution.  
+This function uses W (omega) and "symb" to choose genes or isoforms in the data ordered by t-values and then to normalize the selected data by using z-scale. This function has multiple options to select map color, distance, cluster and x- and y-lab angles. The heatmap was designed for publication and presentation, that is, zoom of the figure can be reduced without impacting solution.  
 }                                              
 \value{
 no return value but create a heatmap.
@@ -62,7 +61,7 @@ myheatmap requres gplots
        \code{\link[gplots]{heatmap.2}}
 }
 \examples{
-require(gplots)
+#require(gplots)
 data(dat) 
 
 #dat<-mbetattest(X=jkttcell,na=3,nb=3,W=1,alpha=0.05,

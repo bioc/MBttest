@@ -25,10 +25,10 @@ numeric argument: number of replicate libraries in condition 1.
 numeric argument: number of replicate libraries in condition 2.
 }
   \item{p}{
-numeric argument: proportion of genes or isoforms differentially expressed. The value is in range of 0~1. Default value is 0.
+numeric argument: proportion of genes or isoforms differentially expressed. The value is in range of 0 ~1. Default value is 0.
 }
   \item{q}{
-numeric argument: proportion of genes or isoforms artificially noised. The value is in range of 0~1. Default value is 0.
+numeric argument: proportion of genes or isoforms artificially noised. The value is in range of 0 ~1. Default value is 0.
 }
   \item{A}{
 numeric argument: conditional effect value. The value is larger than or equal to 0. Default value is 0.
@@ -36,7 +36,7 @@ numeric argument: conditional effect value. The value is larger than or equal to
 
 }
 \details{
-Null count data are created by using R negative binomial pseudorandom generator rnbinom with mu and size. Parameters mu and size are given by mean and  variance drawn from real read counts of a gene or an isoforms in a condition. Condition (or treatment) effect on differential transcription of isoforms is linearly and randomly assigned to genes or isoforms. The conditional effect = AU where U is uniform variable and A is input constant. P percent of genes or isoforms are set to be differentially expressed or differentially spliced. Q percent of genes or isoforms have technical noise.  If P=0, then simulation is null simulation, the data are null data or baseline data.
+Null count data are created by using R negative binomial pseudorandom generator rnbinom with mu and size. Parameters mu and size are given by mean and  variance drawn from real read counts of a gene or an isoforms in a condition. Condition (or treatment) effect on differential transcription of isoforms is linearly and randomly assigned to genes or isoforms. The conditional effect = AU where U is uniform variable and A is an input constant. P percent of genes or isoforms are set to be differentially expressed or differentially spliced. Q percent of genes or isoforms have technical noise.  If P = 0, then simulation is null simulation, the data are null data or baseline data.
 
   
 }

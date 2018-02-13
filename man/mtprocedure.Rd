@@ -13,10 +13,10 @@ mtprocedure(alpha, N, C)
 
 \arguments{
   \item{alpha}{
-probabilistic threshold. alpha is usually set to be 0.05 or 0.01. Default value is 0.05
+probabilistic threshold and is usually set to be 0.05 or 0.01. Default value is 0.05
 }
   \item{N}{
-numeric constant, number of genes to be detected in microarray or transcriptome.
+numeric constant, number of genes to be detected in transcriptome.
 }
   \item{C}{
 numeric constant, it can be taken from 0 to N. C is used to choose multiple-test procedure. Default value is 0.01. This procedure is single test with C=0, Benjamini-Hochberg procedure with C=1.22 and Bonfroni procedure with C=N. 
@@ -30,10 +30,8 @@ return a list of adjusted alpha values.
 }
 \references{
 Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. \emph{Journal of the Royal Statistical Society Series B} \bold{57}, 289-300. 
-\\
+\cr
 Yuan-De Tan and Hongyan Xu A general method for accurate estimation of false discovery rates in identification of differentially expressed genes. \emph{Bioinformatics} (2014) \bold{30} (14): 2018-2025. doi: 10.1093/bioinformatics/btu124.
- 
-
 }
 \author{
 Yuan-De Tan

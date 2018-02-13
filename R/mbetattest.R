@@ -1,5 +1,5 @@
 mbetattest <-
-function(X,na,nb,W,alpha,file){
+function(X,na,nb,W,alpha=0.05,file){
 	cn<-length(X[1,])
 	rn<-length(X[,1])
 	XC<-X[,1:(cn-na-nb)]

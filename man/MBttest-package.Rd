@@ -6,7 +6,7 @@
 Multiple Beta t-tests
 }
 \description{
-This package is used to peform multiple beta t-test analyses of real data and gives heatmap of differential expressions of genes or differential splicings and MA plot. The results listing geneid or isoformid, gene name, the other information, t-value, p-value, adjusted p-value, adjusted alpha value, rho, and symb are saved in csv file. 
+This package is used to peform multiple beta t-test analyses of real data and gives heatmap of differential expressions of genes or differential splicings. The results listing geneid or isoformid, gene name, the other information, t-value, p-value, adjusted p-value, adjusted alpha value, rho, and symb are saved in csv file. 
 }
 \details{
 \tabular{ll}{
@@ -27,7 +27,7 @@ Maintainer: Yuan-De Tan
 }
 \references{
 Baggerly KA, Deng L, Morris JS, Aldaz CM (2003) Differential expression in SAGE: accounting for normal between-library variation. \emph{Bioinformatics}, \bold{19}: 1477-1483.
-\\
+\cr
 Yuan-De Tan Anita M. Chandler, Arindam Chaudhury, and Joel R. Neilson(2015) A Powerful Statistical Approach for Large-scale Differential Transcription Analysis.\emph{Plos One},10.1371/journal.pone.0123658. 
 
 }

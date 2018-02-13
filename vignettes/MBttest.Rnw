@@ -27,11 +27,11 @@ The count data are presented as a matrix consisting of \texttt{RNA} isoform anno
 
 \section{Introduction}
 
-This vignette is intended to give a rapid introduction to the commands used in implementing new beta $t$-test methods of evaluating differential expression in high-throughput sequencing data by means of the \Rpackage{MBttest}\textbf{R} package. For fuller details on the methods being used, consult Tan et al (2015) \cite{tan2015} .
+This vignette is intended to give a rapid introduction to the commands used in implementing new beta $t$-test methods of evaluating differential expression in high-throughput sequencing data by means of the \Rpackage{MBttest}\textbf{R} package. For fuller details on the methods being used, consult Tan et al (2015)~\cite{tan2015} .
 
 We assume that we have count data from a set of sequencing or other high-throughput experiments, arranged in an array such that except gene annotation information and \texttt{id}, each column describes a library and each row describes RNA tag or isoform for which data have been acquired. For example, the rows may correspond to the different sequences observed in a sequencing experiment. The data then consists of the number of each sequence observed in each sample. We wish to determine which, if any, rows of the data correspond to some patterns of differential expression across the samples. 
 
-\Rpackage{MBttest}, also called \emph{mBetat} test, uses new beta $t$-test method to identify differential expression for each row. This approach introduces a gene- or isoform-specific variable, called $\rho$, into $t$-statistics to control fudge effect resulted from small samples. It has higher work efficiency than existing methods for identifying differential expressions of genes or isoforms either by inflating t-values with \[\rho > \omega \] \textit{threshold} or by shrinking those with \[\rho < \omega \]~\cite{tan2015} when number of replicate libraries in each condition is small, for example, equal to or less than 8.
+\Rpackage{MBttest}, also called \emph{mBetat} test, uses new beta $t$-test method to identify differential expression for each row. This approach introduces a gene- or isoform-specific variable, called $\rho$, into $t$-statistics to control fudge effect resulted from small samples. It has higher work efficiency than existing methods for identifying differential expressions of genes or isoforms either by inflating t-values with $\rho > \omega$ \textit{threshold} or by shrinking those with $\rho < \omega$ ~\cite{tan2015} when number of replicate libraries in each condition is small, for example, equal to or less than 8.
 
 Different from the exiting methods such as \Rpackage{baySeq}~\cite{hardcastle2010}, \Rpackage{edgeR} Exact test~\cite{Robinson2008} and\cite{Robinson2010}, \Rpackage{edgeR} \emph{GLM}~\cite{McCarthy 2012} and~\cite{Robinson2010}, \Rpackage{DESeq}~\cite{Anders2010} and\Rpackage{DESeq2}~\cite{Love2014}, etc, \Rpackage{MBttest} requires performance of simulation to determine \textit{threshold} $\omega$ before running program \Rfunction{mbetattest}. \Rpackage{MBttest} provides negative binomial simulation program to generate null count data without inputting arguments.  User should repeat five or more simulations, perform program \Rfunction{smbettest} to produce null results and calculate $\omega$ using the method given in our paper~\cite{tan2015}.  
 
@@ -66,7 +66,7 @@ head(jkttcell)
 If the data are \textit{csv} file, user can use \Rfunction{read.csv} function to input data into \textbf{R Console} or If the data are \textit{txt} file, user can use \Rfunction{read.delim} function to load data into \textbf{R Console}. After loading data, user should check the data inputted. \texttt{jkttcell} shows an example. In this example, 7 columns in the left side are information of \textsl{poly(A)} sites. The count data are listed in the right side.
 
 \section{Simulation for Calculating $omega$ Value }
-Before performing \Rfunction{mbetattest} on the real data, user needs simulation to determine $omega$ value. There are three steps for doing so:
+Before performing \Rfunction{mbetattest} on the real data, user needs simulation to determine $\omega$ value. There are three steps for doing so:
 
 \subsection{Step1: Simulate null count data}
 
@@ -86,7 +86,7 @@ Here is an example:
 <<>>=
 sjknull1<-simulat(yy=jkttcell[1:500,],nci=7,r1=3,r2=3,q=0.2)
 @
-Our data is \textit{jkttcell}. It has 7 columns for information of \textsl{poly(A)} sites. Two conditions are resting and stimulation. Each has 3 replicate libraries, r1=3 and r2=3. Since this is null simulation, we set p=0 and q=0.2 for artificial noise. With the same read data and parameters, you can generate a set of 4-6 null datasets: \textit{sjknull2}, $\cdots$, \textit{sjknull6} for calculating $omega$ value.
+Our data is \textit{jkttcell}. It has 7 columns for information of \textsl{poly(A)} sites. Two conditions are resting and stimulation. Each has 3 replicate libraries, r1=3 and r2=3. Since this is null simulation, we set p=0 and q=0.2 for artificial noise. With the same read data and parameters, you can generate a set of 4-6 null datasets: \textit{sjknull2}, $\cdots$, \textit{sjknull6} for calculating $\omega$ value.
 \subsection{Step2: Perform multiple beta t-tests}
 Use function \Rfunction{smbetattest}  to perform multiple beta t-test with $\rho$ =1 on the  simulated null data: 
 \begin{center}
@@ -115,7 +115,7 @@ After performing \Rfunction{smbetattest} on each simulated null dataset, user wo
    \label{fig:Figure1}
 \end{figure}
 
-In symbol column, \texttt{mbeta} $t$-test gives test result: \textit{symb}= "-" means that the gene or tag is not chosen while \textit{symb}= "+"  indicates that the gene or isoform is found to be differentially expressed.
+In symbol column, \texttt{mbeta} $t$-test gives test result: \textit{symb}= "-" means that a gene or a tag is not chosen while \textit{symb}= "+"  indicates that the gene or isoform is found to be differentially expressed.
 
 \begin{figure}[ht] %  figure placement: here, top, bottom, or page
 \graphicspath{ {vignettes/} }

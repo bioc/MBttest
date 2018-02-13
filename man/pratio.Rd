@@ -2,12 +2,12 @@
 \alias{pratio}
 
 \title{
-Calculation of Psi
+Calculation of Psi(\eqn{\psi})
 }
 \description{
 Psi is also called polar ratio. 
 
-\deqn{psi = max(\frac{min(XA)}{max(XB)},\frac{min(XB)}{max(XA)})}.
+\deqn{\psi = max(\frac{min(X_A)}{max(X_B)+1},\frac{min(X_B)}{max(X_A)+1})}.
 }   
 \usage{
 pratio(xx, na, nb)
@@ -26,8 +26,8 @@ number of replicate libraries in condition B.
 }
 \details{
 Psi is defined as
-\deqn{psi = max(\frac{min(XA)}{max(XB)},\frac{min(XB)}{max(XA)})}
-It is used to measure overlap of two subdatasets. Psi>1, these two subdatasets have a gap, not overlap. Psi <1 indicates that two subdatasets overlap.
+\deqn{\psi = max(\frac{min(X_A)}{max(X_B)+1},\frac{min(X_B)}{max(X_A)+1})}
+It is used to measure overlap of two subdatasets. \eqn{\psi>1}, these two subdatasets have a gap, not overlap.  \eqn{\psi<1} indicates that two subdatasets overlap.
 }
 \value{
 

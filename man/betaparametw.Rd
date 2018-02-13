@@ -1,7 +1,7 @@
 \name{betaparametw}
 \alias{betaparametw}
 \title{
-Estimation of Weights of Proportions
+Estimation of proportion weights
 }
 \description{
 Function betaparametw is used to calculate weight.
@@ -14,21 +14,21 @@ betaparametw(xn, a, b)
 vector of m library sizes. Library size is sum of counts over the whole library. 
 }
   \item{a}{
-parameter alpha in beta distribution derived from output of function Bag_parametab
+parameter alpha in beta distribution derived from output of function betaparametab
 }
   \item{b}{
-parameter beta in beta distribution derived from output of function Bag_parametab
+parameter beta in beta distribution derived from output of function betaparametab
 }
 }
 \details{
-alpha and beta are used to calculate weight. Then weight is in turn used to correct bias of estimation of alpha and beta in Bag_parametab function. 
+alpha and beta are used to calculate weight. Then weight is in turn used to correct bias of estimation of alpha and beta in betaparametab function. 
 }
 \value{
 return weight(W)
 }
 \references{
 Baggerly KA, Deng L, Morris JS, Aldaz CM (2003) Differential expression in SAGE: accounting for normal between-library variation. \emph{Bioinformatics}, \bold{19}: 1477-1483.
-\\
+\cr
 Yuan-De Tan, Anita M. Chandler, Arindam Chaudhury, and Joel R. Neilson(2015) A Powerful Statistical Approach for Large-scale Differential Transcription Analysis.\emph{Plos One}. 2015 DOI: 10.1371/journal.pone.0123658. 
 }
 \author{

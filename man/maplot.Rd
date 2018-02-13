@@ -12,7 +12,7 @@ maplot(dat, r1, r2, TT, matitle)
 
 \arguments{
   \item{dat}{
-object outputted by mbetattest containing data ordered by absolution of t-value and rho.
+object outputted by mbetattest containing data ordered by absolution of t-value and rho (\eqn{\rho}).
 }
   \item{r1}{
 number of replicate libraries in condition 1.
