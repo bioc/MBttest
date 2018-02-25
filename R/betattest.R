@@ -20,7 +20,7 @@ function(X,na,nb){
 		if(Va[i]+Vb[i]>0){
 		t[i]<-(Pa[i]-Pb[i])/(Va[i]+Vb[i])^0.5	
 			}
-		 df[i]<-(Va[i]+Vb[i])^2/(Va[i]^2/(sum(SA)-1)+Vb[i]^2/(sum(SB)-1))
+		 df[i]<-(Va[i]+Vb[i])^2/(Va[i]^2/(na-1)+Vb[i]^2/(nb-1))
 		}
 	#print(t)
 	ttest<-cbind(t,df)
