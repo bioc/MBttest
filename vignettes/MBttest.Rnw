@@ -4,42 +4,55 @@
 % To compile this document
 % library('cacheSweave');rm(list=ls());Sweave('BMttest.Rnw',driver=cacheSweaveDriver());system("pdflatex MBttest")
 
-\documentclass[a4paper]{article}
+\documentclass{article}
+
+%\usepackage[authoryear,round]{natbib}
+
+<<style, echo=FALSE, results=tex>>=
+BiocStyle::latex(use.unsrturl=FALSE)
+@
 
 \title{Multiple Beta $t$-Tests of Differential Transcription of mRNAs Between Two Conditions with Small Samples}
 \author{Yuan-De Tan\\
 \texttt{tanyuande@gmail.com}}
 
-<<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
-BiocStyle::latex()
-@ 
+%<<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+%BiocStyle::latex()
+%@ 
 
 \begin{document}
 
 \maketitle
+%\tableofcontents
+
+<<options, echo=FALSE>>=
+options(width=72)
+options(showHeadLines=3)
+options(showTailLines=3)
+@
 
 \begin{abstract}
-A major task in the analysis of count data of \texttt{RNA} reads from \texttt{RNA-Seq} is the detection of differentially expressed genes or isoforms.
-The count data are presented as a matrix consisting of \texttt{RNA} isoform annotation and  the number of reads. Analogous analyses also arise for other assay types, such as comparative \texttt{ChIP-Seq}. The package \Rpackage{MBttest} provides a powerful method to test for differential expression by use of the beta distribution and gene- or isoform-specific variable $\rho$ to control fudge effect due to small sample size. \footnote{Other Bioconductor packages with similar aims are \Rpackage{edgeR}, \Rpackage{baySeq}, \Rpackage{DESeq} and \Rpackage{DESeq2}.}. This vignette explains the use of the package. For more detail of the statistical method, please see our paper~\cite{tan2015}.
+A major task in the analysis of count data of \textbf{RNA} reads from \textbf{RNA-Seq} is the detection of differentially expressed genes or isoforms.
+The count data are presented as a matrix consisting of \texttt{RNA} isoform annotation and  the number of reads. Analogous analyses also arise for other assay types, such as comparative \textbf{ChIP-Seq}. The \Biocpkg {MBttest} provides a powerful method to test for differential expression by use of the beta distribution and gene- or isoform-specific variable $\rho$ to control fudge effect due to small sample size. \footnote{Other Bioconductor packages with similar aims are \Biocpkg{edgeR}, \Biocpkg{baySeq}, \Biocpkg{DESeq} and \Biocpkg{DESeq2}}. This vignette explains the use of the package. For more detail of the statistical method, please see our paper~\cite{tan2015}.
 \end{abstract}
 
 \tableofcontents
 
 \section{Introduction}
 
-This vignette is intended to give a rapid introduction to the commands used in implementing new beta $t$-test methods of evaluating differential expression in high-throughput sequencing data by means of the \Rpackage{MBttest}\textbf{R} package. For fuller details on the methods being used, consult Tan et al (2015)~\cite{tan2015} .
+This vignette is intended to give a rapid introduction to the commands used in implementing new beta $t$-test methods of evaluating differential expression in high-throughput sequencing data by means of the  \Biocpkg{MBttest} package. For fuller details on the methods being used, consult Tan et al (2015)~\cite{tan2015} .
 
 We assume that we have count data from a set of sequencing or other high-throughput experiments, arranged in an array such that except gene annotation information and \texttt{id}, each column describes a library and each row describes RNA tag or isoform for which data have been acquired. For example, the rows may correspond to the different sequences observed in a sequencing experiment. The data then consists of the number of each sequence observed in each sample. We wish to determine which, if any, rows of the data correspond to some patterns of differential expression across the samples. 
 
-\Rpackage{MBttest}, also called \emph{mBetat} test, uses new beta $t$-test method to identify differential expression for each row. This approach introduces a gene- or isoform-specific variable, called $\rho$, into $t$-statistics to control fudge effect resulted from small samples. It has higher work efficiency than existing methods for identifying differential expressions of genes or isoforms either by inflating t-values with $\rho > \omega$ \textit{threshold} or by shrinking those with $\rho < \omega$ ~\cite{tan2015} when number of replicate libraries in each condition is small, for example, equal to or less than 8.
+The \Biocpkg{MBttest} uses new beta $t$-test method to identify differential expression for each row. This approach introduces a gene- or isoform-specific variable, called $\rho$, into $t$-statistics to control fudge effect resulted from small samples. It has higher work efficiency than existing methods for identifying differential expressions of genes or isoforms either by inflating t-values with $\rho > \omega$ \textit{a threshold} or by shrinking those with $\rho < \omega$ ~\cite{tan2015} when number of replicate libraries in each condition is small, for example, equal to or less than 6.
 
-Different from the exiting methods such as \Rpackage{baySeq}~\cite{hardcastle2010}, \Rpackage{edgeR} Exact test~\cite{Robinson2008} and\cite{Robinson2010}, \Rpackage{edgeR} \emph{GLM}~\cite{McCarthy 2012} and~\cite{Robinson2010}, \Rpackage{DESeq}~\cite{Anders2010} and\Rpackage{DESeq2}~\cite{Love2014}, etc, \Rpackage{MBttest} requires performance of simulation to determine \textit{threshold} $\omega$ before running program \Rfunction{mbetattest}. \Rpackage{MBttest} provides negative binomial simulation program to generate null count data without inputting arguments.  User should repeat five or more simulations, perform program \Rfunction{smbettest} to produce null results and calculate $\omega$ using the method given in our paper~\cite{tan2015}.  
+Different from the exiting methods such as \Biocpkg{baySeq}~\cite{hardcastle2010}, \Biocpkg{edgeR} \Rclass{Exact} test~\cite{Robinson2008} and\cite{Robinson2010}, \Biocpkg{edgeR} \Rclass{GLM}~\cite{McCarthy 2012} and~\cite{Robinson2010}, \Biocpkg{DESeq}~\cite{Anders2010} and \Biocpkg{DESeq2}~\cite{Love2014}, etc, \Biocpkg{MBttest} requires performance of simulation to determine \textit{threshold} $\omega$ before running program \Rfunction{mbetattest}. \Biocpkg{MBttest} provides negative binomial simulation program to generate null count data without inputting arguments.  User should repeat five or more simulations, perform program \Rfunction{smbettest} to produce null results and calculate $\omega$ using the method given in our paper~\cite{tan2015}.  
 
 
 
 \section{Data Preparation and Input}
 
-We begin by loading the \Rpackage{MBttest} package.
+We begin by loading the \Biocpkg{MBttest} package.
 
 <<echo = false, results = hide>>=
 set.seed(102)
@@ -50,20 +63,20 @@ options(width = 90)
 library(MBttest)
 @
 
-\Rpackage{MBttest} requires data file contain two parts: Annotation information and count data. Information consists of  \texttt{tagid}, \texttt{geneid}, gene name, chromosome \texttt{id}, DNA strand, etc. Information is in left side. It has at least one column for \texttt{geneid} or \texttt{tagid (isoformid)}. The data contain two conditions each having several replicate libraries and must be in right side. Here is an example :
+\Biocpkg{MBttest} requires data file contain two parts: Annotation information and count data. Information consists of  \texttt{tagid}, \texttt{geneid}, gene name, chromosome \texttt{id}, DNA strand, etc. Information columns are in left side. The count datasheet has at least one column for \texttt{geneid} or \texttt{tagid (isoformid)}. The data contain two conditions each having several replicate libraries and must be in right side. Here is an example :
 
 <<>>=
 data(jkttcell)
 jkttcell[1:10,]
 @
 
-User also may use \Rfunction{head} to display the data with top 6 lines:
+User also may use R function (head)  to display the data with top 6 lines:
 
 <<>>=
 head(jkttcell)
 @
 
-If the data are \textit{csv} file, user can use \Rfunction{read.csv} function to input data into \textbf{R Console} or If the data are \textit{txt} file, user can use \Rfunction{read.delim} function to load data into \textbf{R Console}. After loading data, user should check the data inputted. \texttt{jkttcell} shows an example. In this example, 7 columns in the left side are information of \textsl{poly(A)} sites. The count data are listed in the right side.
+If the datasheet is \textit{.csv} file, user can use R function (read.csv) to input data into \software{R Console} or \software{RStudio}. If the datasheet is \textit{txt} file, user can use R function \Rfunction{read.delim} or \Rfunction{read.table} to load data into \software{R Console}or \software{RStudio}. After loading data, user should check the data inputted. \texttt{jkttcell} shows an example. In this example, 7 columns in the left side are information for \textsl{poly(A)} sites. The count data are listed in the right side.
 
 \section{Simulation for Calculating $omega$ Value }
 Before performing \Rfunction{mbetattest} on the real data, user needs simulation to determine $\omega$ value. There are three steps for doing so:
@@ -72,7 +85,7 @@ Before performing \Rfunction{mbetattest} on the real data, user needs simulation
 
 Use the following function to generate null simulation data
 \begin{center}
-                 \Rfunction{simulat(yy, nci, r1, r2, p, q, A)}
+                  simulat(yy, nci, r1, r2, p, q, A)
 \end{center}
 where\\ 
 \textit{yy} is real data.\\
@@ -84,9 +97,10 @@ $A$ is effect value. Its default value is 0.\
 Here is an example:
 
 <<>>=
-sjknull1<-simulat(yy=jkttcell[1:500,],nci=7,r1=3,r2=3,q=0.2)
+sjknull1<-simulat(yy=jkttcell[1:500,], nci=7,r1=3,r2=3,p=0, q=0.2)
 @
-Our data is \textit{jkttcell}. It has 7 columns for information of \textsl{poly(A)} sites. Two conditions are resting and stimulation. Each has 3 replicate libraries, r1=3 and r2=3. Since this is null simulation, we set p=0 and q=0.2 for artificial noise. With the same read data and parameters, you can generate a set of 4-6 null datasets: \textit{sjknull2}, $\cdots$, \textit{sjknull6} for calculating $\omega$ value.
+
+The example dataset is \textit{jkttcell}. It has 7 columns for  alternative \textsl{poly(A)} site information. Two conditions are resting and stimulation. Each has 3 replicate libraries, r1=3 and r2=3. Since this is null simulation, we set p=0 and q=0.2 for artificial noise. With the same read data and parameters, you can generate a set of 4-6 null datasets: \textit{sjknull2}, $\cdots$, \textit{sjknull6} for calculating $\omega$ value.
 \subsection{Step2: Perform multiple beta t-tests}
 Use function \Rfunction{smbetattest}  to perform multiple beta t-test with $\rho$ =1 on the  simulated null data: 
 \begin{center}
@@ -97,15 +111,12 @@ $X$=simulated data.\\
 $na$ and $nb$ are numbers of replicate libraries in conditions 1 and 2.\\
 \textit{alpha} is probabilistic threshold. User can set \textit{alpha}=0.05 or 0.01.\\
 The example is
+
 <<>>=
 mysim1<-smbetattest(X=sjknull1,na=3,nb=3,alpha=0.05)
 @
 
-Save them to \textit{csv} files
-
-\Rfunction{write.csv}\textit{(mysim1, file='simulatedNullData1Result.csv")}
-
-After performing \Rfunction{smbetattest} on each simulated null dataset, user would have results recorded in file like \textit{simulatedNullData1Result.csv} and open it with excel.
+Save them to \textit{.csv} files using \Rfunction{write.csv}.  After performing \Rfunction{smbetattest} on each simulated null dataset, user would have results recorded in a file like \textit{simulatedNullData1Result.csv} and open it with excel.
 
 \begin{figure}[ht] %  figure placement: here, top, bottom, or page
 \graphicspath{ {vignettes/} }
@@ -139,13 +150,14 @@ Here is a demo for calculating $omega$(since we can't use greek letter $omega$ i
    \label{fig:Figure 3}
 \end{figure}
 
-We chose the 10th $\rho$ value (1.09166) as the first $W$ value because the 11th rho value has $q$-value > 0.85.  Repeat this process in 4-6 simulated null datasets and we took the averaged $W$ value as $W$ value in the real data.  
+We chose the 10th $\rho$ value (1.09166) as the first $W$ value because the 11th rho value has $q$-value > 0.85.  Repeat this process in 4-6 simulated null datasets and we took the averaged $W$ value as $\omega$ value in the real data.  
 
 \section{Normalize the count data}
-As a second processing step, we need to estimate the effective library size. This step is also called \emph{normalization}, even though it may not make the count data be of normal distribution.  If the counts of expressed genes in one condition are, on average, twice as high as in another (because the library was sequenced twice as deeply), the size factor for the first condition should be twice higher than the second one, then differential analysis would give error results. For this reason, we must make all libraries have the same size before performing any statistical method. For doing so, user can the function
-\Rfunction{estimateSizeFactors} of \textbf{R} package \Rpackage{DESeq}~\cite{Anders2010} or \Rpackage{DESeq2}~\cite{Love2014} to estimate the size factors from the count data or  use the following simple method to normalize the the count data: In excel sheet, use function sum to calculate sizes of all libraries, and then use excel function average to calculate averaged library size. The last step is to use the following equation to convert the original count data to new count data with the same library size: 
-\[Y_{ik} =\frac{y_{ij}\bar{N}}{N_j}\]
-where
+As a second processing step, we need to estimate the effective library size. This step is also called \emph{normalization}, even though it may not make the count data be of normal distribution.  If the counts of expressed genes in one condition are, on average, twice as high as in another (because the library was sequenced twice as deeply), the size factor for the first condition should be twice higher than the second one, then differential analysis would give error results. For this reason, we must make all libraries have the same size before performing any statistical method. For doing so, user can the function \textit{estimateSizeFactors} of  package \textbf{DESeq}~\cite{Anders2010} or \\textbf{DESeq2}~\cite{Love2014} to estimate the size factors from the count data or  use the following simple method to normalize the the count data: In excel sheet, use function sum to calculate sizes of all libraries, and then use excel function average to calculate averaged library size. The last step is to use the following equation to convert the original count data to new count data with the same library size: 
+\begin{align}
+Y_{ik} =\frac{y_{ij}\bar{N}}{N_j}\\
+\end{align}
+where \\
 $i = 2$, $\cdots$, $n$(number of genes or isofoms) in rows in a sheet, $j = nci+1$, $\cdots$, $nci+c$ where $c=na+nb$ and \textit{nci} is column number of annotation information; $k = nci + c +2+j$; $N_j$ is size of library $j$ and $\bar{N}$ is mean of sizes over all libraries; $y_{ij}$ is original count of \texttt{RNA} reads in row $i$ and column $j$. 
 
 \section{Perform Multiple Beta $t$-Tests on The Real Data}
