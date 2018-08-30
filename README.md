@@ -12,7 +12,8 @@ You can install MBttest from GitHub using devtools in R Console or Rstudio:
 
 or
 
-`source("http://bioconductor.org/biocLite.R")`
+`if (!requireNamespace("BiocManager", quietly=TRUE))`
+    `install.packages("BiocManager")`
 
 `biocLite("MBttest", dependencies = TRUE)l`
 
