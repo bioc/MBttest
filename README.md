@@ -15,7 +15,7 @@ or
 `if (!requireNamespace("BiocManager", quietly=TRUE))`
     `install.packages("BiocManager")`
 
-`biocLite("MBttest", dependencies = TRUE)l`
+`BiocManager::install("MBttest", dependencies = TRUE)l`
 
 `library(MBttest)`
 
